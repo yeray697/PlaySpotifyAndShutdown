@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+# Spotify methods get from https://gist.github.com/wandernauta/6800547
+
+# Change this uri to play yours spotify playlist
+URI="spotify:user:yeray007n2:playlist:1OblHqckaTmCmvVVGCTE4J"
+
+SP_DEST="org.mpris.MediaPlayer2.spotify"
+SP_PATH="/org/mpris/MediaPlayer2"
+SP_MEMB="org.mpris.MediaPlayer2.Player"
+HELP_COMMAND_1="-h"
+HELP_COMMAND_2="--help"
+SPOTIFY_SLEEP=2
+function dbus {
+  # Sends the given method to Spotify over dbus.
+  dbus-send --print-reply --dest=$SP_DEST $SP_PATH $SP_MEMB.$1 ${*:2} > /dev/null
+}
+
+function open {
+  # Opens the given spotify: URI in Spotify.
+  dbus OpenUri string:$1
+}
+
+function print_help {
+	echo "Usage: pss [time]"
+	echo "Shutdown your pc after X minutes and play a playlist during 10 minutes (default)."
+	echo ""
+	echo "  pss 5       - Music starts to play after 5 minutes and your pc is shutdown after 10 minutes (default)"
+	echo "  pss 5 8     - Music starts to play after 5 minutes and your pc is shutdown after 8 minutes"
+}
+function isvalidparameter {
+	if [[ -z "$1" ]]; then
+		return 1
+	else
+		return 0
+	fi
+}
+function isinteger {
+	if [ "$1" -eq "$1" ] 2>/dev/null; then
+		return 0
+	else
+		return 1
+	fi
+}
+function error {
+	echo $1
+	echo $USAGE
+	exit 1
+}
+
+
+
+# Getting time as an argument passed
+time=$1
+shutdowntime=$2
+
+if isvalidparameter $time; then
+	# if [ "$time" -eq "$time" ] 2>/dev/null
+	if isinteger $time;
+	then
+		# Getting shutdown time
+		if isvalidparameter $shutdowntime; then
+			if ! isinteger $shutdowntime; then
+				error "ERROR: shutdown time must be an integer."
+			fi
+		else
+			shutdowntime=10
+		fi
+		# Sleeping
+		time=$(($time * 60))
+		sleep $time;
+		# Setting shutdown
+		shutdown -h +$shutdowntime
+		# Playing music while pc is waiting to shutdown:
+			# Opening spotify if it is not open
+		SPOTIFY_PID="$(pidof -s spotify || pidof -s .spotify-wrapped)"
+		if [[ -z "$SPOTIFY_PID" ]]; then
+		  spotify & sleep $SPOTIFY_SLEEP
+		fi
+			# Playing list
+		open $URI
+	else
+shopt -s nocasematch
+
+		if [ "${time,,}" == "$HELP_COMMAND_1" ] || [ "${time,,}" == "$HELP_COMMAND_2" ] ; then
+			print_help
+		else
+			error "ERROR: sleep time must be an integer."
+		fi
+	fi
+else
+	print_help
+fi
