@@ -19,4 +19,9 @@ The first one means like the previous one. The second means how many minutes wil
 
   pss 5 8     ->     Music starts to play after 5 minutes and your pc is shutdown after 8 minutes
   
-#### *** Note: 'pss' is the name of the script!
+##### *** Note: 'pss' is the name of the script!
+
+#### To stop
+If you want stop the count down, just write pss stop. This command will kill all process associated to the script, stop your music and cancel shutdown.
+  
+##### *** Note: if you change the script name, make sure to change the variable called 'COMMAND_NAME', or the process won't be closed
