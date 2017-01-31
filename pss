@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Spotify methods get from https://gist.github.com/wandernauta/6800547
+# Spotify methods got from https://gist.github.com/wandernauta/6800547
 
 # Change this uri to play yours spotify playlist
 URI="spotify:user:yeray007n2:playlist:1OblHqckaTmCmvVVGCTE4J"
@@ -79,9 +79,9 @@ function pss-error {
 	exit 1
 }
 function pss-stop {
+	shutdown -c
 	pss-dbus "Pause" > /dev/null
 	pkill -f $COMMAND_NAME
-	shutdown -c
 }
 
 
